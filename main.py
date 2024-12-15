@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from app.retrieval import JobRetrieval
 import openai
 import os
@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 # Set your OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
+conversation_history = []  # To store the chat context
 
 # Initialize the retrieval system
 retrieval_system = JobRetrieval(data_path="data/NYC_Jobs_Cleaned.csv")
@@ -79,8 +80,8 @@ conversation_history = [
 ]
 
 @app.route("/")
-def home():
-    return "Hello, this is your Job Assistant!"
+def index():
+    return render_template("index.html")
    
 @app.route("/query", methods=["POST"])
 def query():

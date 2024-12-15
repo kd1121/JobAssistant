@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .chat-box {
+            border: none;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+        }
+        .chat-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.assistant {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+        <input type="text" id="chat-input" class="chat-box" placeholder="Type your message..." />
+        <button id="chat-button" class="chat-button">Send</button>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById("chat-messages");
+        const chatInput = document.getElementById("chat-input");
+        const chatButton = document.getElementById("chat-button");
+
+        async function sendMessage() {
+            const userMessage = chatInput.value;
+            if (!userMessage) return;
+
+            // Display user message
+            const userDiv = document.createElement("div");
+            userDiv.className = "message user";
+            userDiv.textContent = userMessage;
+            chatMessages.appendChild(userDiv);
+            chatInput.value = "";
+
+            // Send the query to the backend
+            const response = await fetch("/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: userMessage }),
+            });
+            const data = await response.json();
+
+            // Display assistant response
+            const assistantDiv = document.createElement("div");
+            assistantDiv.className = "message assistant";
+            assistantDiv.textContent = data.response_message;
+            chatMessages.appendChild(assistantDiv);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatButton.addEventListener("click", sendMessage);
+        chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>
