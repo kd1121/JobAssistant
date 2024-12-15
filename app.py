@@ -78,6 +78,13 @@ conversation_history = [
     },
 ]
 
+@app.route("/")
+def home():
+    return "Hello, this is your Job Assistant!"
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 @app.route("/query", methods=["POST"])
 def query():
     global conversation_history
