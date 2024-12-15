@@ -81,10 +81,7 @@ conversation_history = [
 @app.route("/")
 def home():
     return "Hello, this is your Job Assistant!"
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
+   
 @app.route("/query", methods=["POST"])
 def query():
     global conversation_history
@@ -187,7 +184,6 @@ def follow_up():
     })
 
 
-####################################################################################
 
 @app.route("/trending", methods=["GET"])
 def trending():
@@ -202,7 +198,6 @@ def trending():
         "trending_categories": trending_categories
     })
 
-######################################################################################
 
 @app.route("/history", methods=["GET"])
 def history():
