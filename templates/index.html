@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Assistant</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            /* width: 600px; */
+            height: 100%;
+            /* background-color: #222831; */
+            /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); */
+            /* border-radius: 10px; */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 20%;
+        }
+
+        /* Header */
+        .chat-header {
+            color: #EEEEEE;
+            padding: 20px;
+            font-size: 50px;
+            text-align: center;
+            font-family: 'Silkscreen', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* Chat Messages Section */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto; /* Enables scrolling */
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column; /* Makes the children stack vertically */
+            justify-content: flex-end; /* Keeps messages aligned at the bottom */
+            height: 100%; /* Set a height for the scrollable container */
+            
+            border-radius: 8px; /* Optional for rounded corners */
+        }
+
+        /* Chat Message Styles */
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-message.bot {
+            justify-content: flex-start;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .chat-message .message {
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .chat-message.user .message {
+            background-color: #4e4e4e;
+            color: #EEEEEE;
+            text-align: right;
+        }
+
+        .chat-message.bot .message {
+            color: #EEEEEE;
+        }
+
+
+        /* Input Section */
+        /* .chat-input {
+            display: flex;
+            margin-bottom: 10px;
+            padding: 15px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #00ADB5;
+            border-radius: 18px;
+            outline: none;
+            margin-right: 10px;
+        } */
+
+        /* Send Button */
+        /* .send-button {
+            background-color: #00ADB5;
+            color: #222831;
+            border: none;
+            border-radius: 18px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .send-button:hover {
+            background-color: #00cfd8;
+            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .send-button:active {
+            box-shadow: none;
+            transform: translateY(2px);
+        } */
+
+
+        /* Typing Indicator - Blinking Circles */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            margin-bottom: 10px;
+        }
+
+        .typing-indicator .circle {
+            width: 8px;
+            height: 8px;
+            margin: 0 4px;
+            background-color: #EEEEEE;
+            border-radius: 50%;
+            animation: blink 1.2s infinite ease-in-out;
+        }
+
+        .typing-indicator .circle:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator .circle:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 80%, 100% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar Customization */
+        .chat-messages::-webkit-scrollbar {
+            
+            width: 0%;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #00ADB5;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #ddd;
+        }
+
+        .chat-message.bot img {
+        vertical-align: middle; /* Aligns the image vertically with text */
+        border-radius: 50%; /* Optional: Makes the image circular */
+        }
+
+        .chat-input {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #1e1e1e;
+        padding: 0 15px;
+        border-radius: 10px;
+        border: 1px solid rgb(63, 63, 63);
+        margin-bottom: 10px;
+        }
+        .chat-input:focus-within {
+        border: 1px solid #606060;
+        }
+        #user-input {
+        width: 70%;
+        height: 100%;
+        background-color: transparent;
+        outline: none;
+        border: none;
+        padding-left: 10px;
+        color: #f5f5f5;
+        }
+        #user-input:focus ~ #sendButton svg path,
+        #user-input:valid ~ #sendButton svg path {
+        fill: #3c3c3c;
+        stroke: white;
+        }
+
+        #sendButton {
+        width: fit-content;
+        height: 100%;
+        background-color: transparent;
+        outline: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        }
+        #sendButton svg {
+        height: 18px;
+        transition: all 0.3s;
+        }
+        #sendButton svg path {
+        transition: all 0.3s;
+        }
+        #sendButton:hover svg path {
+        fill: #3682f4;
+        stroke: white;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            Job Assistant
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <!-- Chat Input -->
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button id="sendButton" class="send-button" onclick="sendMessage()">
+                <svg viewBox="0 0 664 663" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+                      fill="none"
+                    ></path>
+                    <path
+                      d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+                      stroke="#6c6c6c"
+                      stroke-width="33.67"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+            </button>
+            <!-- <button class="reset-button" onclick="resetContext()">Reset</button> -->
+        </div>
+    <!-- </div> -->
+
+    <!-- JavaScript -->
+    <!-- <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+
+        //Track conversation history
+        let conversationHistory = [];
+
+        // Append messages dynamically
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender);
+
+            let formattedMessage = message;
+
+            // Bold (**text** -> <strong>text</strong>)
+            formattedMessage = formattedMessage.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+            // Italic (*text* -> <em>text</em>)
+            formattedMessage = formattedMessage.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+            // Underline (_text_ -> <u>text</u>)
+            formattedMessage = formattedMessage.replace(/_(.*?)_/g, "<u>$1</u>");
+
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message');
+            messageContent.innerHTML = formattedMessage;
+
+            messageElement.appendChild(messageContent);
+            chatMessages.appendChild(messageElement);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+        }
+
+        // Handle Enter Key Press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Send Message Function
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            appendMessage(message, 'user');
+            userInput.value = '';
+
+            // Append a temporary "typing..." message
+            const typingElement = document.createElement('div');
+            typingElement.classList.add('chat-message', 'bot');
+            const typingBubble = document.createElement('div');
+            typingBubble.classList.add('message');
+            typingBubble.textContent = 'Typing...';
+            typingElement.appendChild(typingBubble);
+            chatMessages.appendChild(typingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        query: message,
+                        history: conversationHistory,
+                    }),
+                });
+
+                chatMessages.removeChild(typingElement);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessage(data.response_message, 'bot');
+                    conversationHistory.push({bot: data.response_message });
+                } else {
+                    appendMessage('Error: Unable to fetch response from server.', 'bot');
+                }
+            } catch (error) {
+                chatMessages.removeChild(typingElement);
+                appendMessage('Error: Unable to connect to the server.', 'bot');
+            }
+        }
+    </script> -->
+
+    <!-- <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+    
+        // Track conversation history
+        let conversationHistory = [];
+    
+        // Append messages dynamically to the chat
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender);
+    
+            let formattedMessage = message;
+    
+            // Format bold (**text** -> <strong>text</strong>)
+            formattedMessage = formattedMessage.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+            // Format italic (*text* -> <em>text</em>)
+            formattedMessage = formattedMessage.replace(/\*(.*?)\*/g, "<em>$1</em>");
+            // Format underline (_text_ -> <u>text</u>)
+            formattedMessage = formattedMessage.replace(/_(.*?)_/g, "<u>$1</u>");
+    
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message');
+            messageContent.innerHTML = formattedMessage;
+    
+            messageElement.appendChild(messageContent);
+            chatMessages.appendChild(messageElement);
+    
+            // Auto-scroll to the bottom of the chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    
+        // Handle Enter key press to send a message
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    
+        //-------------------------------------------------------------------------------
+
+        // Send Message Function
+        // async function sendMessage() {
+        //     const message = userInput.value.trim();
+    
+        //     if (!message) return;
+    
+        //     // Append user's message to the chat and conversation history
+        //     appendMessage(message, 'user');
+        //     conversationHistory.push({ user: message });
+        //     userInput.value = '';
+
+        //     const lastHistory = conversationHistory.length > 0 ? conversationHistory[conversationHistory.length - 1] : null;
+    
+      
+    
+        //     try {
+        //         // Log the payload being sent
+        //         const payload = {
+        //             query: message,
+        //             history: conversationHistory,
+        //             //resetContext: false,
+        //         };
+        //         console.log("Payload being sent to server:", payload);
+
+        //         // Send the query and conversation history to the backend
+        //         const response = await fetch('/query', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify(payload),
+        //         });
+
+                // // Remove "typing..." message
+                // chatMessages.removeChild(typingElement);
+
+        //         if (response.ok) {
+        //             const data = await response.json();
+        //             appendMessage(data.response_message, 'bot');
+        //             // Append bot's response to conversation history
+        //             conversationHistory.push({
+        //                 user: message, 
+        //                 bot: data.response_message,
+        //                 retrieved_jobs: data.retrieved_jobs || [] 
+        //             });
+        //         } else {
+        //             const errorData = await response.json();
+        //             console.error("Server Error:", errorData);
+        //             appendMessage(`Error: ${errorData.error}`, 'bot');
+        //         }
+        //     } catch (error) {
+        //         // Remove "typing..." message and show error
+        //         chatMessages.removeChild(typingElement);
+        //         appendMessage('Error: Unable to connect to the server.', 'bot');
+        //         console.error("Network Error:", error);
+        //     }
+        // }
+
+        //---------------------------------------------------------------------------
+
+        let lastRetrievedJobs = []; // Tracks the last retrieved jobs for follow-up queries
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            appendMessage(message, 'user');
+            userInput.value = '';
+
+            // Append a temporary "typing..." message
+            const typingElement = document.createElement('div');
+            typingElement.classList.add('chat-message', 'bot');
+            typingElement.innerHTML = '<div class="message">Typing...</div>';
+            chatMessages.appendChild(typingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: message,
+                        last_jobs: lastRetrievedJobs // Include the last retrieved jobs
+                    }),
+                });
+
+            // Remove "typing..." message
+            chatMessages.removeChild(typingElement);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessage(data.response_message, 'bot');
+
+                    // Update the last retrieved jobs if available
+                    if (data.retrieved_jobs) {
+                        lastRetrievedJobs = data.retrieved_jobs;
+                    }
+                } else {
+                    appendMessage('Error: Unable to fetch response from server.', 'bot');
+                }
+            } catch (error) {
+                appendMessage('Error: Unable to connect to the server.', 'bot');
+            }
+        }
+
+    
+        // Reset Conversation Context
+        async function resetContext() {
+            conversationHistory = []; // Clear conversation history
+            appendMessage('Context has been reset. You can start a new query.', 'bot');
+        }
+    
+        // Add event listeners
+        userInput.addEventListener('keypress', handleKeyPress);
+    </script> -->
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+    
+        let conversationHistory = [];
+        let lastRetrievedJobs = []; // Tracks the last retrieved jobs for follow-up queries
+    
+        // Append messages dynamically to the chat with typing animation
+        function appendMessageWithTypingEffect(message, sender, delay = 0) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender);
+
+            let formattedMessage = message;
+    
+            // Format bold (**text** -> <strong>text</strong>)
+            formattedMessage = formattedMessage.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+            // Format italic (*text* -> <em>text</em>)
+            formattedMessage = formattedMessage.replace(/\*(.*?)\*/g, "<em>$1</em>");
+            // Format underline (_text_ -> <u>text</u>)
+            formattedMessage = formattedMessage.replace(/_(.*?)_/g, "<u>$1</u>");
+
+            // If sender is bot, add the image ahead of the message
+            if (sender === 'bot') {
+                const image = document.createElement('img');
+                image.src = '/static/ai.png'; // Path to your uploaded image
+                image.alt = 'Bot Icon';
+                image.style.width = '20px'; // Adjust size as needed
+                image.style.height = '20px';
+                image.style.margin = '12px 10px'; // Add spacing between image and text
+                image.style.padding = '5px 7px 5px 5px';
+                image.style.backgroundColor = 'white';
+
+                messageElement.appendChild(image);
+            }
+    
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message');
+            messageContent.innerHTML = formattedMessage; // Start empty for animation
+    
+            messageElement.appendChild(messageContent);
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+            // if (sender === 'bot') {
+            //     let index = 0;
+            //     function typeChar() {
+            //         if (index < message.length) {
+            //             messageContent.innerHTML += message[index];
+            //             index++;
+            //             setTimeout(typeChar, 0);
+            //         } else {
+            //             chatMessages.scrollTop = chatMessages.scrollHeight;
+            //         }
+            //     }
+            //     typeChar(); // Start typing animation
+            // }
+        }
+    
+        // Show blinking circle typing indicator
+        function showTypingIndicator() {
+            const typingElement = document.createElement('div');
+            typingElement.classList.add('chat-message', 'bot');
+    
+            const typingIndicator = document.createElement('div');
+            typingIndicator.classList.add('typing-indicator');
+    
+            for (let i = 0; i < 3; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('circle');
+                typingIndicator.appendChild(circle);
+            }
+    
+            typingElement.appendChild(typingIndicator);
+            chatMessages.appendChild(typingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+            return typingElement; // Return for removal later
+        }
+    
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+    
+            appendMessageWithTypingEffect(message, 'user');
+            userInput.value = '';
+    
+            // Show blinking circle typing indicator
+            const typingElement = showTypingIndicator();
+    
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: message,
+                        last_jobs: lastRetrievedJobs,
+                    }),
+                });
+    
+                // Remove typing indicator once response is ready
+                chatMessages.removeChild(typingElement);
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessageWithTypingEffect(data.response_message, 'bot', 50);
+    
+                    if (data.retrieved_jobs) {
+                        lastRetrievedJobs = data.retrieved_jobs;
+                    }
+                } else {
+                    appendMessageWithTypingEffect('Error: Unable to fetch response from server.', 'bot');
+                }
+            } catch (error) {
+                chatMessages.removeChild(typingElement);
+                appendMessageWithTypingEffect('Error: Unable to connect to the server.', 'bot');
+            }
+        }
+    
+        function resetContext() {
+            conversationHistory = [];
+            appendMessageWithTypingEffect('Context has been reset. You can start a new query.', 'bot');
+        }
+    
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+    
+
+    
+</body>
+</html>

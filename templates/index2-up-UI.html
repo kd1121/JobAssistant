@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Advisor Chatbot</title>
+    <!-- Tailwind CSS CDN for Clean Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* From Uiverse.io by ahmed150up */
+        .card-container {
+            background-color: #fff;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #0056d2;
+            color: white;
+            font-size: 24px;
+        }
+
+        .card-header .img-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: #333;
+        }
+
+        .card-header .text-chat {
+            margin: 0;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 15px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+            height: 400px;
+        }
+
+        .message-box {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message-box.left {
+            background-color: #f1f1f1;
+            color: black;
+            align-self: flex-start;
+        }
+
+        .message-box.right {
+            background-color: #0056d2;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+        }
+
+        .message-input textarea {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            resize: none;
+            font-size: 16px;
+        }
+
+        .message-input button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .message-input button:hover {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="card-container">
+        <!-- Header -->
+        <div class="card-header">
+            <div class="img-avatar"></div>
+            <div class="text-chat">Job Assistant</div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="card-body" id="chat-messages">
+            <!-- Example Messages -->
+            <div class="message-box left">
+                <p>Hello, How can I assist you?</p>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input">
+            <textarea id="user-input" placeholder="Type your message here"></textarea>
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Chat Functionality -->
+    <script>
+        const chatMessages = document.getElementById("chat-messages");
+
+        // Append messages dynamically
+        function appendMessage(message, sender) {
+            const messageBox = document.createElement("div");
+            messageBox.classList.add("message-box", sender);
+            messageBox.innerHTML = `<p>${message}</p>`;
+            chatMessages.appendChild(messageBox);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send message to the server
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input");
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            // Append user message
+            appendMessage(message, "right");
+            userInput.value = "";
+
+            try {
+                const response = await fetch("/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: message }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const botMessage = data.response_message;
+                    appendMessage(botMessage, "left");
+                } else {
+                    appendMessage("Error: Unable to fetch response from server.", "left");
+                }
+            } catch (error) {
+                appendMessage("Error: Unable to connect to the server.", "left");
+            }
+        }
+
+        // Add event listeners
+        sendButton.addEventListener("click", sendMessage);
+
+        userInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); // Prevent newline in the textarea
+                sendMessage(); // Call sendMessage on Enter
+            }
+        });
+    </script>
+</body>
+</html>
