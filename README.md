@@ -144,8 +144,10 @@ Built with ❤️ by Kishan & team.
 ## 📸 Screenshots
 
 ### 🔹 Chat UI
-![Chat UI](static/image.png)
-
+![Chat UI](static/SS1.png)
+---
+![Chat UI](static/SS2.png)
+---
 ### 🔹 AI Icon
 ![AI Logo](static/ai.png)
 
